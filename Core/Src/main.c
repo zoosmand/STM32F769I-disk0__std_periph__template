@@ -493,8 +493,8 @@ void SystemInit(void) {
   /* Sensors */
   BMx280_Init(BME280);
 
-  /* Touchscreen STMPE811 */
-  // PE811_Init();
+  /* Touchscreen FT6206 */
+  // FT6206_Init();
 
   /* On-board display */
   Display_Init();
