@@ -47,6 +47,7 @@ extern "C" {
 #include "otm8009a.h"
 #include "i2c.h"
 #include "bmx280.h"
+#include "ft6206.h"
 
 /* Global typedef ------------------------------------------------------------*/
 struct __FILE {
@@ -59,8 +60,7 @@ struct __FILE {
 /**
   * @brief  RCC Clocks Frequency Structure
   */
-typedef struct
-{
+typedef struct {
   uint32_t HCLK_Freq;          /*!< HCLK clock frequency */
   uint32_t PCLK1_Freq;         /*!< PCLK1 clock frequency */
   uint32_t PCLK1_Freq_Tim;     /*!< PCLK1 clock frequency for timers */
@@ -70,6 +70,7 @@ typedef struct
 
 
 /* Exported types ------------------------------------------------------------*/
+
 
 /* Exported varables ---------------------------------------------------------*/
 extern uint32_t sysQuantum;

@@ -176,37 +176,17 @@ void Flags_Handler(void){
 
   /* The set of procedures runs every second */
   if (FLAG_CHECK(_GLOBALREG_, _SECF_)) {
+
     // LED_Blink(LED_Port, LED0_Pin);
-    printf("test\n");
-    // PrintDateTime(_printf);
-    // SDRAM_Write8b(0, 'A');
-    // SDRAM_Write8b(1, 'B');
-
-    // uint8_t aaa = SDRAM_Read8b(0);
-    // uint8_t bbb = SDRAM_Read8b(1);
-    // printf("%c%c\n", aaa, bbb);
-
-
-    DisplayDateAndTime_Handler();
+    // printf("test\n");
 
     DrawHLine(L1, 2, 100, 100, _YELLOW);
     DrawVLine(L1, 1, 100, 100, _WHITE);
-
-
     FillRectangle(L1, 100, 200, 100, 200, _GREEN);
-
-
-    // SDRAM_Write32b(0, 0xffffffff);
-
-    // if (truner) {
-    //   IO_WriteCmd(0, (uint8_t *){OTM8009A_CMD_MADCTR, 0xa0});
-    //   truner = 0;
-    // } else {
-    //   IO_WriteCmd(0, (uint8_t *){OTM8009A_CMD_MADCTR, 0x60});
-    //   truner = 1;
-    // }
+    DisplayDateAndTime_Handler();
 
     // FT6206_Init();
+    // BMx280_Measurment();
 
     FLAG_CLR(_GLOBALREG_, _SECF_);
   }
@@ -260,10 +240,6 @@ void SystemInit(void) {
   NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
   /* Conficure SysTick */
-  // SysTick->CTRL     = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk;
-  // SysTick->LOAD     = 2160U - 1U;
-  // SysTick->VAL      = 0;
-  // SysTick->CTRL     |= SysTick_CTRL_ENABLE_Msk;
   SET_BIT(SysTick->CTRL, (SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk));
   SysTick->LOAD = 2160U - 1U;
   SysTick->VAL = 0;
@@ -416,7 +392,7 @@ void SystemInit(void) {
   /* APB1 */
   SET_BIT(RCC->APB1ENR, (
       RCC_APB1ENR_TIM6EN
-    | RCC_APB1ENR_I2C1EN
+    // | RCC_APB1ENR_I2C1EN
     | RCC_APB1ENR_I2C4EN
   ));
   CLEAR_BIT(RCC->APB1ENR, (
@@ -468,17 +444,13 @@ void SystemInit(void) {
   /* EXTI */
   EXTI_Init();
 
-  /* USART1 */ 
+  /* USART */ 
   USART1_Init();
 
   /* CRC */ 
   CRC_Init();
 
-  /* SPI5 */
-  // SPI5_Init();
-
-  // /* I2C3 */
-  // I2C3_Init();
+  /* SPI */
 
   /* Basic Timer6 */
   BasicTimer6_Init();
@@ -487,11 +459,11 @@ void SystemInit(void) {
   RTC_Init();
 
   /* I2C */
-  // I2C_Init(I2C4);
-  I2C_Init(I2C1);
+  I2C_Init(I2C4);
+  // I2C_Init(I2C1);
 
   /* Sensors */
-  BMx280_Init(BME280);
+  // BMx280_Init(BME280, BMx280_I2C);
 
   /* Touchscreen FT6206 */
   // FT6206_Init();

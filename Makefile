@@ -56,7 +56,8 @@ Core/Src/dot_15x21.c \
 Core/Src/dot_20x28.c \
 Core/Src/otm8009a.c \
 Core/Src/i2c.c \
-Core/Src/bmx280.c
+Core/Src/bmx280.c \
+Core/Src/ft6206.c
 
 # ASM sources
 ASM_SOURCES =  \

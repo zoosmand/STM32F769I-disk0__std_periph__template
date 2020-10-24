@@ -20,9 +20,9 @@ uint32_t _I2CREG_;
 /* -------------------------------------------------------------------------- */
 /* Private function prototypes -----------------------------------------------*/
 /* -------------------------------------------------------------------------- */
-static uint8_t I2C_GenerateStart(I2C_TypeDef *I2Cx);
-static void I2C_GenerateStop(I2C_TypeDef *I2Cx);
-static void I2C_SendAddress(I2C_TypeDef *I2Cx, uint16_t slaveAddr, I2C_AddressMode addrMode, I2C_Direction dir);
+static ErrorStatus I2C_PrepareTransmit(I2C_TypeDef *I2Cx, uint16_t slaveAddr, I2C_AddressMode addrMode, I2C_Direction dir, I2C_RunMode runMode, uint32_t bufLength);
+static ErrorStatus I2C_Master_Send(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, uint32_t len);
+static ErrorStatus I2C_Master_Receive(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, uint16_t len);
 
 
 
@@ -54,15 +54,14 @@ void I2C_Init(I2C_TypeDef *I2Cx) {
     ));
     /* Speed */
     MODIFY_REG(I2C_1_Port->OSPEEDR, I2C_1_MASK, (
-        (_SPEED_V << (I2C_1_SDA_Pin_Pos * 2))
-      | (_SPEED_V << (I2C_1_SCL_Pin_Pos * 2))
+        (_SPEED_H << (I2C_1_SDA_Pin_Pos * 2))
+      | (_SPEED_H << (I2C_1_SCL_Pin_Pos * 2))
     ));
-    // /* Output type */
+    /* Output type */
     MODIFY_REG(I2C_1_Port->OTYPER, (I2C_1_SDA_Pin | I2C_1_SCL_Pin), (
         (_OTYPE_OD << I2C_1_SDA_Pin_Pos)
       | (_OTYPE_OD << I2C_1_SCL_Pin_Pos)
     ));
-    // MODIFY_REG(I2C_4_SCL_Port->OTYPER, I2C_4_SCL_Pin, (_OTYPE_OD << I2C_4_SCL_Pin_Pos));
     /* Push mode */
     MODIFY_REG(I2C_1_Port->PUPDR, I2C_1_MASK, (
         (_PUPD_PU << (I2C_1_SDA_Pin_Pos * 2))
@@ -76,15 +75,16 @@ void I2C_Init(I2C_TypeDef *I2Cx) {
 
     /* Due to a undocumented bug, the source clock should be start after the GPIO initialization */
     Delay(1);
-    // PREG_SET(RCC->APB1ENR, RCC_APB1ENR_I2C3EN_Pos);
+    PREG_SET(RCC->APB1ENR, RCC_APB1ENR_I2C1EN_Pos);
 
 
     // I2C
     /* ----------------------------------------------------------------------------- */
     CLEAR_BIT(I2Cx->CR1, I2C_CR1_PE);
     I2Cx->TIMINGR = (0x40912732 & 0xf0ffffff);
+    // I2Cx->TIMINGR = (0x20404768 & 0xf0ffffff);
     SET_BIT(I2Cx->OAR1, I2C_OAR1_OA1EN);
-    SET_BIT(I2Cx->CR2, (I2C_CR2_AUTOEND | I2C_CR2_NACK));
+    // SET_BIT(I2Cx->CR2, (I2C_CR2_AUTOEND | I2C_CR2_NACK));
     I2Cx->OAR2 = 0;
     MODIFY_REG(I2Cx->CR1, (I2C_CR1_GCEN_Msk | I2C_CR1_NOSTRETCH_Msk), 0);
     SET_BIT(I2Cx->CR1, I2C_CR1_PE);
@@ -102,13 +102,13 @@ void I2C_Init(I2C_TypeDef *I2Cx) {
     MODIFY_REG(I2C_4_SDA_Port->MODER, I2C_4_SDA_Pin_Mask, (_MODE_AF << (I2C_4_SDA_Pin_Pos * 2)));
     MODIFY_REG(I2C_4_SCL_Port->MODER, I2C_4_SCL_Pin_Mask, (_MODE_AF << (I2C_4_SCL_Pin_Pos * 2)));
     /* Speed */
-    MODIFY_REG(I2C_4_SDA_Port->OSPEEDR, I2C_4_SDA_Pin_Mask, (_SPEED_V << (I2C_4_SDA_Pin_Pos * 2)));
-    MODIFY_REG(I2C_4_SCL_Port->OSPEEDR, I2C_4_SCL_Pin_Mask, (_SPEED_V << (I2C_4_SCL_Pin_Pos * 2)));
+    MODIFY_REG(I2C_4_SDA_Port->OSPEEDR, I2C_4_SDA_Pin_Mask, (_SPEED_H << (I2C_4_SDA_Pin_Pos * 2)));
+    MODIFY_REG(I2C_4_SCL_Port->OSPEEDR, I2C_4_SCL_Pin_Mask, (_SPEED_H << (I2C_4_SCL_Pin_Pos * 2)));
     // /* Output type */
-    // MODIFY_REG(I2C_4_SDA_Port->OTYPER, I2C_4_SDA_Pin, (_OTYPE_OD << I2C_4_SDA_Pin_Pos));
+    MODIFY_REG(I2C_4_SDA_Port->OTYPER, I2C_4_SDA_Pin, (_OTYPE_OD << I2C_4_SDA_Pin_Pos));
     MODIFY_REG(I2C_4_SCL_Port->OTYPER, I2C_4_SCL_Pin, (_OTYPE_OD << I2C_4_SCL_Pin_Pos));
     // /* Push mode */
-    // MODIFY_REG(I2C_4_SDA_Port->PUPDR, I2C_4_SDA_Pin_Mask, (_PUPD_PU << (I2C_4_SDA_Pin_Pos * 2)));
+    MODIFY_REG(I2C_4_SDA_Port->PUPDR, I2C_4_SDA_Pin_Mask, (_PUPD_PU << (I2C_4_SDA_Pin_Pos * 2)));
     // MODIFY_REG(I2C_4_SCL_Port->PUPDR, I2C_4_SCL_Pin_Mask, (_PUPD_PU << (I2C_4_SCL_Pin_Pos * 2)));
     /* Alternate function */
     MODIFY_REG(I2C_4_SDA_Port->AFR[0], 0xf0000000, (GPIO_AF_11 << (I2C_4_SDA_Pin_Pos * 4)));
@@ -142,18 +142,14 @@ void I2C_Init(I2C_TypeDef *I2Cx) {
   * @param  data: a byte to send
   * @return None
   */
-uint8_t I2C_Write(I2C_TypeDef *I2Cx, uint8_t slaveAddress, uint8_t *buf, uint16_t len) {
-  uint8_t status = 0;
-
-  if (I2C_GenerateStart(I2Cx)) {
-    // if (I2C_Master_Transmit(I2Cx, slaveAddress, &reg, 1)) {
-      status = I2C_Master_Transmit(I2Cx, slaveAddress, buf, len);
-    // }
-    I2C_GenerateStop(I2Cx);
+ErrorStatus I2C_Write(I2C_TypeDef *I2Cx, uint8_t slaveAddr, uint8_t *buf, uint16_t len) {
+  if (I2C_Master_Send(I2Cx, slaveAddr, buf, len)) {
+    return (ERROR);
   }
-
- return (status);
+  return (SUCCESS);
 }
+
+
 
 
 
@@ -163,38 +159,18 @@ uint8_t I2C_Write(I2C_TypeDef *I2Cx, uint8_t slaveAddress, uint8_t *buf, uint16_
   * @param  I2Cx: pointer to an I2C instance
   * @return  a received byte
   */
-uint8_t I2C_Read(I2C_TypeDef *I2Cx, uint8_t slaveAddr, uint8_t reg, uint8_t *buf, uint16_t len) {
-  uint8_t status = 0;
-
-  // if (I2C_GenerateStart(I2Cx)) {
-  //   if (I2C_Master_Transmit(I2Cx, slaveAddress, &reg, 1)) {
-  //     if (I2C_GenerateStart(I2Cx)) {
-  //       status = I2C_Master_Receive(I2Cx, slaveAddress, buf, len);
-  //     }
-  //   }
-  //   I2C_GenerateStop(I2Cx);
-  // }
-
-  I2C_Master_Transmit(I2Cx, slaveAddr, &reg, 1);
-
-  I2C_Master_Receive(I2Cx, slaveAddr, buf, len);
-
-  return (status);
+ErrorStatus I2C_Read(I2C_TypeDef *I2Cx, uint8_t slaveAddr, uint8_t reg, uint8_t *buf, uint16_t len) {
+  if (I2C_Master_Send(I2Cx, slaveAddr, &reg, 1)) {
+    return (ERROR);
+  } else {
+    if (I2C_Master_Receive(I2Cx, slaveAddr, buf, len)) {
+      return (ERROR);
+    }
+  }
+  return (SUCCESS);
 }
 
 
-
-
-// /**
-//   * @brief  Transfers 8 bit data via I2C (read and write in one iteraction)
-//   * @param  I2Cx: pointer to an I2C instance
-//   * @param  data: a byte to send
-//   * @return a received byte
-//   */
-// uint8_t I2C_Transfer8b(I2C_TypeDef *I2Cx, uint8_t addr, uint8_t data) {
-
-//   return (data);
-// }
 
 
 
@@ -208,73 +184,27 @@ uint8_t I2C_Read(I2C_TypeDef *I2Cx, uint8_t slaveAddr, uint8_t reg, uint8_t *buf
   * @param  len Amount of data to be sent
   * @return transmit status
   */
-uint8_t I2C_Master_Transmit(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, uint32_t len) {
-  uint8_t status = 0;
-  uint32_t timeout = 5000000;
+ErrorStatus I2C_Master_Send(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, uint32_t len) {
+  uint32_t timeout = OP_TIMEOUT;
 
-  if (len > 0xff) return (status);
+  I2C_AddressMode mode;
+  mode = ((slaveAddr & 0xfe) == slaveAddr) ? I2C_7bit : I2C_10bit;
 
-  //  I2Cx->CR2 |= ((slaveAddress << I2C_CR2_SADD_Pos) | (I2C_TX << I2C_CR2_RD_WRN_Pos));
-
-  // /* Generate Start or ReStart */
-  // PREG_SET(I2Cx->CR2, I2C_CR2_START_Pos);
-
-  // while (!(PREG_CHECK(I2Cx->ISR, I2C_ISR_BUSY_Pos))) {
-  //   timeout--;
-  //   if (!timeout) {
-  //     status = 0;
-  //     return (status);
-  //   }
-  // }
-  
-  /* Disable Pos */
-  // PREG_CLR(I2Cx->CR1, I2C_CR1);
-  // /* Disable Ack */
-  // PREG_CLR(I2Cx->CR1, I2C_CR1_ACK_Pos);
-
-
-  // if (I2C_SendAddress(I2Cx, slaveAddress, mode_7bit, transmit)) {
-  //   while (len--) {
-  //     I2Cx->DR = *buf++;
-  //     while (!(PREG_CHECK(I2Cx->SR1, I2C_SR1_TXE_Pos))) {
-  //       timeout--;
-  //       if (!timeout) {
-  //         status = 0;
-  //         return (status);
-  //       }
-  //     }
-
-  //     if ((PREG_CHECK(I2Cx->SR1, I2C_SR1_AF_Pos)) || (PREG_CHECK(I2Cx->SR1, I2C_SR1_ARLO_Pos)) || (PREG_CHECK(I2Cx->SR1, I2C_SR1_BERR_Pos))) {
-  //       status = 0;
-  //     } else {
-  //       status = 1;
-  //     }
-  //   }
-  // }
-
-  if ((slaveAddr & 0x7f) == slaveAddr) {
-    I2C_SendAddress(I2Cx, slaveAddr, I2C_7bit, I2C_TX);
-  } else {
-    I2C_SendAddress(I2Cx, slaveAddr, I2C_10bit, I2C_TX);
+  if (I2C_PrepareTransmit(I2Cx, slaveAddr, mode, I2C_TX, I2C_SOFTEND, len)) {
+    return (ERROR);
   }
-  I2Cx->CR2 |= (len << I2C_CR2_NBYTES_Pos);
-  status = I2C_GenerateStart(I2Cx);
-  status = I2C_GenerateStart(I2Cx);
 
   while (len--) {
-    I2Cx->TXDR = *buf++;
+    I2Cx->TXDR = (__O uint8_t)*buf++;
     while (!(PREG_CHECK(I2Cx->ISR, I2C_ISR_TXE_Pos))) {
       timeout--;
       if (!timeout) {
-        status = 0;
-        return (status);
+        return (ERROR);
       }
     }
   }
 
-  I2C_GenerateStop(I2Cx);
-
-  return (status);
+  return (SUCCESS);
 }
 
 
@@ -291,60 +221,27 @@ uint8_t I2C_Master_Transmit(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf,
   * @param  len Amount of data to be sent
   * @return receive status
   */
-uint8_t I2C_Master_Receive(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, uint16_t len) {
-  uint8_t status = 0;
-  uint32_t timeout = 5000000;
-  
-  // /* Enable Ack */
-  // // PREG_SET(I2Cx->CR2, I2C_CR2_ACK_Pos);
-  // // CLR_I2C_BIT(&I2Cx->CR1, I2C_CR1_ACK_Pos);
+ErrorStatus I2C_Master_Receive(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, uint16_t len) {
+  uint32_t timeout = OP_TIMEOUT;
 
-  // if (I2C_SendAddress(I2Cx, slaveAddress, mode_7bit, receive)) {
-  //   while (len--) {
-  //     // last byte without Acking
-  //     if (len == 0) {
-  //       // PREG_CLR(I2Cx->CR1, I2C_CR1_ACK_Pos);
-  //     }
+  I2C_AddressMode mode;
+  mode = ((slaveAddr & 0xfe) == slaveAddr) ? I2C_7bit : I2C_10bit;
 
-  //     while (!(PREG_CHECK(I2Cx->SR1, I2C_SR1_RXNE_Pos))) {
-  //       timeout--;
-  //       if (!timeout) {
-  //         status = 0;
-  //         return (status);
-  //       }
-  //     }
-  //     *buf++ = I2Cx->DR;
-
-  //     if ((PREG_CHECK(I2Cx->SR1, I2C_SR1_AF_Pos)) || (PREG_CHECK(I2Cx->SR1, I2C_SR1_ARLO_Pos)) || (PREG_CHECK(I2Cx->SR1, I2C_SR1_BERR_Pos))) {
-  //       status = 0;
-  //     } else {
-  //       status = 1;
-  //     }
-  //   }
-  // }
-
-  if ((slaveAddr & 0x7f) == slaveAddr) {
-    I2C_SendAddress(I2Cx, slaveAddr, I2C_7bit, I2C_RX);
-  } else {
-    I2C_SendAddress(I2Cx, slaveAddr, I2C_10bit, I2C_RX);
+  if (I2C_PrepareTransmit(I2Cx, slaveAddr, mode, I2C_RX, I2C_AUTOEND, len)) {
+    return (ERROR);
   }
-  I2Cx->CR2 |= (len << I2C_CR2_NBYTES_Pos);
-  status = I2C_GenerateStart(I2Cx);
+  
   while (len--) {
-
-    *buf++ = I2Cx->RXDR;
     while (!(PREG_CHECK(I2Cx->ISR, I2C_ISR_RXNE_Pos))) {
       timeout--;
       if (!timeout) {
-        status = 0;
-        return (status);
+        return (ERROR);
       }
     }
+    *buf++ = (__I uint8_t)I2Cx->RXDR;
   }
 
-  I2C_GenerateStop(I2Cx);
-
-  return (status);
+  return (SUCCESS);
 }
 
 
@@ -352,25 +249,29 @@ uint8_t I2C_Master_Receive(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, 
 
 
 
-static void I2C_SendAddress(I2C_TypeDef *I2Cx, uint16_t slaveAddr, I2C_AddressMode addrMode, I2C_Direction dir) {
+static ErrorStatus I2C_PrepareTransmit(I2C_TypeDef *I2Cx, uint16_t slaveAddr, I2C_AddressMode addrMode, I2C_Direction dir, I2C_RunMode runMode, uint32_t len) {
+  uint32_t timeout = OP_TIMEOUT;
+  uint32_t cnt = 0;
+  cnt = (len > 255) ? 255 : len;
 
-  // if (addressMode == mode_7bit) {
-  //   I2Cx->CR2 |= ((slaveAddress << I2C_CR2_SADD_Pos) | (dir << I2C_CR2_RD_WRN_Pos));
-  //   while (!(PREG_CHECK(I2Cx->ISR, I2C_ISR_ADDR_Pos))) {
-  //     timeout--;
-  //     if (!timeout) {
-  //       status = 0;
-  //       return (status);
-  //     }
-  //   }
-  // } else {
-  //   // ToDo. 10-bit address handler
-  // }
-
+  if (runMode == I2C_SOFTEND) {
+    while (PREG_CHECK(I2Cx->ISR, I2C_ISR_BUSY_Pos)) {
+      timeout--;
+      if (!timeout) {
+        return (ERROR);
+      }
+    }
+  } 
+  
   switch (addrMode) {
     case I2C_7bit:
-      I2Cx->CR2 |= ((slaveAddr << I2C_CR2_SADD_Pos) | (dir << I2C_CR2_RD_WRN_Pos));
-      I2Cx->CR2 &= ~(1 << I2C_CR2_AUTOEND_Pos);
+      MODIFY_REG(I2Cx->CR2, (I2C_CR2_SADD_Msk | I2C_CR2_NBYTES_Msk | I2C_CR2_RD_WRN_Msk | I2C_CR2_START_Msk | I2C_CR2_STOP_Msk), (
+          (slaveAddr << I2C_CR2_SADD_Pos)
+        | (dir << I2C_CR2_RD_WRN_Pos)
+        | (cnt << I2C_CR2_NBYTES_Pos)
+        | (runMode << I2C_CR2_AUTOEND_Pos)
+        | I2C_CR2_START
+      ));
       break;
     
     case I2C_10bit:
@@ -380,56 +281,12 @@ static void I2C_SendAddress(I2C_TypeDef *I2Cx, uint16_t slaveAddr, I2C_AddressMo
     default:
       break;
   }
-}
 
-
-
-
-
-uint8_t I2C_GenerateStart(I2C_TypeDef *I2Cx) {
-  uint8_t status = 1;
-  uint32_t timeout = 5000000;
-
-
-  // while (PREG_CHECK(I2Cx->ISR, I2C_ISR_BUSY_Pos)) {
-  //   timeout--;
-  //   if (!timeout) {
-  //     status = 0;
-  //     return (status);
-  //   }
-  // }
-   /* Generate Start or ReStart */
-  PREG_SET(I2Cx->CR2, I2C_CR2_START_Pos);
-  
-  while (PREG_CHECK(I2Cx->ISR, I2C_ISR_TXIS_Pos)) {
-    timeout--;
-    if (!timeout) {
-      status = 0;
-      return (status);
-    }
+  /* Return error id the I2C address was not accepted */
+  if ((PREG_CHECK(I2Cx->ISR, I2C_ISR_NACKF_Pos)) && (PREG_CHECK(I2Cx->ISR, I2C_ISR_STOPF_Pos))) {
+    return (ERROR);
   }
-  return (status);
+
+  return(SUCCESS);
 }
 
-
-
-
-
-void I2C_GenerateStop(I2C_TypeDef *I2Cx) {
-  PREG_SET(I2Cx->CR2, I2C_CR2_STOP_Pos);
-}
-
-
-
-
-void FT6206_Init(void) {
-  Delay(50);
-
-  uint8_t buf[8]; 
-  // I2C_Read(I2C4, I2C_ADDR, FT6206_CHIP_ID_REG, buf, 1);
-
-  buf[0] = FT6206_CHIP_ID_REG;
-
-  I2C_Master_Transmit(I2C4, I2C_ADDR, buf, 1);
-  I2C_Master_Receive(I2C4, I2C_ADDR, buf, 1);
-}

@@ -55,13 +55,15 @@ typedef enum {
   I2C_RX    = 1
 } I2C_Direction;
 
+typedef enum {
+  I2C_SOFTEND = 0,
+  I2C_AUTOEND = 1
+} I2C_RunMode;
 
-
-
-#define I2C_ADDR              0x54
-
-/* FT6206 Chip identification register */
-#define FT6206_CHIP_ID_REG    0xA8
+/**
+  * @brief  I2C operations timeout
+  */
+#define OP_TIMEOUT            500000U
 
 
 /* Private macro -------------------------------------------------------------*/
@@ -70,13 +72,11 @@ typedef enum {
 
 /* Exported functions prototypes ---------------------------------------------*/
 void I2C_Init(I2C_TypeDef *I2Cx);
-uint8_t I2C_Write(I2C_TypeDef *I2Cx, uint8_t slaveAddr, uint8_t *buf, uint16_t len);
-uint8_t I2C_Read(I2C_TypeDef *I2Cx, uint8_t slaveAddr, uint8_t reg, uint8_t *buf, uint16_t len);
-uint8_t I2C_Transfer8b(I2C_TypeDef *I2Cx, uint8_t addr, uint8_t data);
-uint8_t I2C_Master_Transmit(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, uint32_t len);
-uint8_t I2C_Master_Receive(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, uint16_t len);
-
-void FT6206_Init(void);
+ErrorStatus I2C_Write(I2C_TypeDef *I2Cx, uint8_t slaveAddr, uint8_t *buf, uint16_t len);
+ErrorStatus I2C_Read(I2C_TypeDef *I2Cx, uint8_t slaveAddr, uint8_t reg, uint8_t *buf, uint16_t len);
+// uint8_t I2C_Transfer8b(I2C_TypeDef *I2Cx, uint8_t addr, uint8_t data);
+// ErrorStatus I2C_Master_Transmit(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, uint32_t len);
+// ErrorStatus I2C_Master_Receive(I2C_TypeDef *I2Cx, uint16_t slaveAddr, uint8_t *buf, uint16_t len);
 
 
 #ifdef __cplusplus
