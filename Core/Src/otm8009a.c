@@ -354,8 +354,8 @@ void OTM8009A_Init(uint32_t colorSchema) {
     // Vertical
   #ifndef _LANDSCAPE_
     DSI_Write(0, (uint8_t *)ShortRegData39);
-    DSI_Write( 4, (uint8_t *)lcdRegData27);
-    DSI_Write( 4, (uint8_t *)lcdRegData28);
+    DSI_Write(4, (uint8_t *)lcdRegData27);
+    DSI_Write(4, (uint8_t *)lcdRegData28);
   #endif
     // DSI_Write(0, (uint8_t *){OTM8009A_CMD_MADCTR, 0xf0});
     // DSI_Write( 4, (uint8_t *)lcdRegData27);

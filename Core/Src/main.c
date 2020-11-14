@@ -185,7 +185,7 @@ void Flags_Handler(void){
     FillRectangle(L1, 100, 200, 100, 200, _GREEN);
     DisplayDateAndTime_Handler();
 
-    // FT6206_Init();
+    FT6206_Init(); 
     // BMx280_Measurment();
 
     FLAG_CLR(_GLOBALREG_, _SECF_);

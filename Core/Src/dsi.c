@@ -11,7 +11,7 @@
   
   
 /* Includes ------------------------------------------------------------------*/
-#include "DSI.h"
+#include "dsi.h"
 
 /* Global variables ---------------------------------------------------------*/
 uint32_t _DSIREG_ = 0;
@@ -396,22 +396,22 @@ void DSI_LongWrite(uint8_t ch, uint8_t mode, uint32_t cnt, uint8_t p1, uint8_t *
 
 	/* Set the DCS code on payload byte 1, and the other parameters on the write FIFO command*/
 	fifoword = p1;
-	nbBytes = (cnt < 3U) ? cnt : 3U;
+	nbBytes = (cnt < 3) ? cnt : 3;
 
-	for (count = 0U; count < nbBytes; count++) {
-		fifoword |= (((uint32_t)(*(pparams + count))) << (8U + (8U * count)));
+	for (count = 0; count < nbBytes; count++) {
+		fifoword |= (((uint32_t)(*(pparams + count))) << (8 + (8 * count)));
 	}
 	DSI->GPDR = fifoword;
 
 	uicounter = cnt - nbBytes;
 	pparams += nbBytes;
 	/* Set the Next parameters on the write FIFO command*/
-	while (uicounter != 0U) {
-		nbBytes = (uicounter < 4U) ? uicounter : 4U;
-		fifoword = 0U;
+	while (uicounter != 0) {
+		nbBytes = (uicounter < 4) ? uicounter : 4;
+		fifoword = 0;
 
-		for (count = 0U; count < nbBytes; count++) {
-		  fifoword |= (((uint32_t)(*(pparams + count))) << (8U * count));
+		for (count = 0; count < nbBytes; count++) {
+		  fifoword |= (((uint32_t)(*(pparams + count))) << (8 * count));
 		}
 
 		DSI->GPDR = fifoword;

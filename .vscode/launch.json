@@ -37,6 +37,22 @@
         {
             "type": "cortex-debug",
             "request": "launch",
+            "servertype": "openocd",
+            "serverpath": "openocd",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/vsarm_firmware.elf",
+            "name": "Debug (OpenOCD no SWO)",
+            "device": "STM32F769NI",
+            "v1": false,
+            "svdFile": "${workspaceRoot}/STM32F769.svd",
+            "armToolchainPath": "${env:VSARM}/arm-gcc/bin",
+            "configFiles": [
+                "${env:SHARE}/openocd/scripts/board/stm32f769.cfg"
+            ]
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
             "servertype": "stutil",
             "cwd": "${workspaceRoot}",
             "executable": "./build/vsarm_firmware.elf",

@@ -89,6 +89,7 @@ ErrorStatus BMx280_Init(BMx280_SensorTypeDef sensorType, BMx280_TransportTypeDef
   // }
 
   /* Read Device ID and if it isn't equal to the current, exit. */
+  buf[0] = 0;
   if (BMx280_Read(bmxItem, BMX280_DEV_ID, buf, 1)) {
     return (ERROR);
   }
