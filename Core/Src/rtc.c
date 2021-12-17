@@ -61,13 +61,13 @@ void RTC_Init(void) {
 
   /* Configure Date and Time */
   struct tm timeStruct = {
-    .tm_year = 2020, 
-    .tm_mon = 9,
-    .tm_mday = 30,
+    .tm_year = 2021, 
+    .tm_mon = 12,
+    .tm_mday = 17,
     .tm_wday = 5,
-    .tm_hour = 22,
-    .tm_min = 12,
-    .tm_sec = 59
+    .tm_hour = 19,
+    .tm_min = 55,
+    .tm_sec = 50
   };
   RTC_SetDateTime(timeStruct);
 

@@ -17,7 +17,7 @@
             "svdFile": "${workspaceRoot}/STM32F769.svd",
             "armToolchainPath": "${env:VSARM}/arm-gcc/bin",
             "configFiles": [
-                "${env:SHARE}/openocd/scripts/board/stm32f769.cfg"
+                "${env:SHARE}/openocd/scripts/board/stm32f769i-disco.cfg"
             ],
             "swoConfig": {
                 "enabled": true,
