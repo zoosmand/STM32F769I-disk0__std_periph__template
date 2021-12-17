@@ -41,7 +41,7 @@ extern uint32_t _USARTREG_;
 
 
 /* Private macros ------------------------------------------------------------*/
-#define BAUDRATE        921000
+#define BAUDRATE        115200
 #define BRR_Value       (RccClocks.PCLK2_Freq / BAUDRATE)
 
 

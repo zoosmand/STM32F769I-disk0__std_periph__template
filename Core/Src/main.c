@@ -182,7 +182,7 @@ void Flags_Handler(void){
 
     // DrawHLine(L1, 2, 100, 100, _YELLOW);
     // DrawVLine(L1, 1, 100, 100, _WHITE);
-    FillRectangle(L2, 400, 200, 40, 200, _GREEN);
+    FillRectangle(L2, 400, 200, 400, 200, _GREEN);
     DisplayDateAndTime_Handler();
 
     FT6206_Init(); 
