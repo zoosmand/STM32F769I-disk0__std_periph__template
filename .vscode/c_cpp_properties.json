@@ -3,11 +3,11 @@
         {
             "name": "MacOS",
             "includePath": [
-                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/10.3.1",
-                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/10.3.1/arm-none-eabi",
-                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/10.3.1/backward",
-                "${env:VSARM}/arm-gcc/lib/gcc/arm-none-eabi/10.3.1/include",
-                "${env:VSARM}/arm-gcc/lib/gcc/arm-none-eabi/10.3.1/include-fixed",
+                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/14.2.1",
+                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/14.2.1/arm-none-eabi",
+                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/14.2.1/backward",
+                "${env:VSARM}/arm-gcc/lib/gcc/arm-none-eabi/14.2.1/include",
+                "${env:VSARM}/arm-gcc/lib/gcc/arm-none-eabi/14.2.1/include-fixed",
                 "${env:VSARM}/arm-gcc/arm-none-eabi/include",
                 "${workspaceRoot}/Drivers/CMSIS/Include/",
                 "${workspaceRoot}/Drivers/CMSIS/Device/ST/STM32F7xx/Include/",
@@ -34,8 +34,8 @@
                 "STM32F769xx"
             ],
             "intelliSenseMode": "macos-clang-arm64",
-            "cStandard": "c17",
-            "cppStandard": "c++17",
+            "cStandard": "c23",
+            "cppStandard": "c++23",
             "browse": {
                 "path": [
                     "${workspaceRoot}",
@@ -44,17 +44,16 @@
                 ],
                 "limitSymbolsToIncludedHeaders": false,
                 "databaseFilename": ""
-            },
-            "configurationProvider": "ms-vscode.makefile-tools"
+            }
         },
         {
             "name": "Windows",
             "includePath": [
-                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/10.3.1",
-                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/10.3.1/arm-none-eabi",
-                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/10.3.1/backward",
-                "${env:VSARM}/arm-gcc/lib/gcc/arm-none-eabi/10.3.1/include",
-                "${env:VSARM}/arm-gcc/lib/gcc/arm-none-eabi/10.3.1/include-fixed",
+                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/14.2.1",
+                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/14.2.1/arm-none-eabi",
+                "${env:VSARM}/arm-gcc/arm-none-eabi/include/c++/14.2.1/backward",
+                "${env:VSARM}/arm-gcc/lib/gcc/arm-none-eabi/14.2.1/include",
+                "${env:VSARM}/arm-gcc/lib/gcc/arm-none-eabi/14.2.1/include-fixed",
                 "${env:VSARM}/arm-gcc/arm-none-eabi/include",
                 "${workspaceRoot}/Drivers/CMSIS/Include",
                 "${workspaceRoot}/Drivers/CMSIS/Device/ST/STM32F7xx/Include",
@@ -86,8 +85,8 @@
                 "__UINT16_TYPE__=short unsigned int"
             ],
             "intelliSenseMode": "gcc-arm",
-            "cStandard": "c11",
-            "cppStandard": "c++17",
+            "cStandard": "c23",
+            "cppStandard": "c++23",
             "browse": {
                 "path": [
                     "${workspaceRoot}",
