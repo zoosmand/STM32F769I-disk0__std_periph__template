@@ -53,8 +53,14 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# MacOS specialties
+# MX Cube
+*.ioc
+.mxproject
+
+# Builds
+build/
+Core/.DS_Store
 .DS_Store
 
-# logs
-*.log
+# CMSIS and HAL drivers
+Drivers/

@@ -14,7 +14,7 @@
             "name": "Debug (OpenOCD)",
             "device": "STM32F769NI",
             "v1": false,
-            "svdFile": "${workspaceRoot}/STM32F769.svd",
+            "svdFile": "${workspaceRoot}/stm32f769.svd",
             "armToolchainPath": "${env:VSARM}/arm-gcc/bin",
             "configFiles": [
                 "${env:SHARE}/openocd/scripts/board/stm32f769i-disco.cfg"
@@ -44,7 +44,7 @@
             "name": "Debug (OpenOCD no SWO)",
             "device": "STM32F769NI",
             "v1": false,
-            "svdFile": "${workspaceRoot}/STM32F769.svd",
+            "svdFile": "${workspaceRoot}/stm32f769.svd",
             "armToolchainPath": "${env:VSARM}/arm-gcc/bin",
             "configFiles": [
                 "${env:SHARE}/openocd/scripts/board/stm32f769.cfg"
@@ -59,7 +59,7 @@
             "name": "Debug (ST-Util)",
             "device": "STM32F769NI",
             "v1": false,
-            "svdFile": "${workspaceRoot}/STM32F769.svd",
+            "svdFile": "${workspaceRoot}/stm32f769.svd",
             "armToolchainPath": "${env:VSARM}/arm-gcc/bin"
         }
     ]

@@ -380,12 +380,12 @@ void SystemInit(void) {
 
   /*****************************************************************************************/
   /* IWDG */
-  IWDG->KR = IWDG_KEY_ENABLE;
-  IWDG->KR = IWDG_KEY_WR_ACCESS_ENABLE;
-  IWDG->PR =  IWDG_PR_PR & (IWDG_PR_PR_2 | IWDG_PR_PR_0); /*!< Divider by 128 */
-  IWDG->RLR = IWDG_RLR_RL & 624;
-  while (!(PREG_CHECK(IWDG->SR, IWDG_SR_PVU_Pos)));
-  IWDG->KR = IWDG_KEY_RELOAD;
+  // IWDG->KR = IWDG_KEY_ENABLE;
+  // IWDG->KR = IWDG_KEY_WR_ACCESS_ENABLE;
+  // IWDG->PR =  IWDG_PR_PR & (IWDG_PR_PR_2 | IWDG_PR_PR_0); /*!< Divider by 128 */
+  // IWDG->RLR = IWDG_RLR_RL & 624;
+  // while (!(PREG_CHECK(IWDG->SR, IWDG_SR_PVU_Pos)));
+  // IWDG->KR = IWDG_KEY_RELOAD;
 
   /*****************************************************************************************/
   /* Peripheral clock */
